@@ -95,6 +95,7 @@ initial, arbitrary value.
 
 ** Start of a Path
 
+*** Initial value
 Paths can start with an initial value. For example, this path starts
 with the value =20=. To be more accurate, the Path holds a list of
 values containing a single one, with the value of =20=.
@@ -103,6 +104,32 @@ values containing a single one, with the value of =20=.
 20 ───────────────
 #+End_src
 
+When starting the Path in this manner in an /horizontal orientation/,
+the value must be written on the *same line* as the starting point of
+the Path. In a /vertical orientation/, the value must have at least one
+character (whitespace or not) above or below the starting point. For
+example, the following paths are valid:
+
+#+Begin_src bauge
+20 ──────────
+
+         "hello world"
+               │
+               └────
+#+End_src
+
+But the following paths are not:
+
+#+Begin_src bauge
+
+42
+────────
+                   ┌─
+                   │
+           "foobar"
+#+End_src
+
+*** Function argument
 Paths can also start with the value of an argument of a function,
 using the special characters mentioned above. If we position ourselves
 in the context of the function =fibonacci(Int) -> Int=, then the path
