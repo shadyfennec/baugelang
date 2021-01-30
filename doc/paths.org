@@ -1,0 +1,3 @@
+#+Title: Paths
+
+The *Path* is the fundamental concept of Bauge.
