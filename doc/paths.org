@@ -69,7 +69,96 @@ specific meaning:
 
 | Characters | UTF-8 Codepoints | Meaning                                 |
 |------------+------------------+-----------------------------------------|
-| =╼=, =╽=, =╼=, =╿= | U+257C to U+257F | Start the Path with a function argument |
+| =╼=, =╽=, =╾=, =╿= | U+257C to U+257F | Start the Path with a function argument |
 | =╳=          | U+2573           | End the program with an error           |
 | =→=, =←=, =↑=, =↓= | U+2190 to U+2193 | Returns with the content of the path    |
+
+Let's put this in action. Here is an example of Bauge Paths, using
+both single and double Paths, as well as an error termination, an
+argument start and a return (the semantic of the branching out and ins
+are discussed later in the documentation).
+
+#+Begin_src bauge
+╾──────────┐
+┌──────────┘       ╔══╗
+│              ┌───╢  ╟───┐
+└──────────────┤   ╚══╝   │
+               └───┬──────┴────→
+╳──────────────────┘
+#+End_src
+
+* Semantics of the Path
+A Path is essentially an *ordered list of values*. Each path can contain
+one or more value of any type; value types can be heterogeneous. Paths
+can either start with an argument of the current function, or with an
+initial, arbitrary value.
+
+** Start of a Path
+
+Paths can start with an initial value. For example, this path starts
+with the value =20=. To be more accurate, the Path holds a list of
+values containing a single one, with the value of =20=.
+
+#+Begin_src bauge
+20 ───────────────
+#+End_src
+
+Paths can also start with the value of an argument of a function,
+using the special characters mentioned above. If we position ourselves
+in the context of the function =fibonacci(Int) -> Int=, then the path
+below holds the value of the first (and only) argument of the
+function.
+
+#+Begin_src bauge
+╾─────────────────
+#+End_src
+
+When a function has multiple arguments, we consider the arguments
+starting from the leftmost one to the rightmost one; and we attribute
+them to starting paths in the following order:
+- Left to right
+- Top to bottom
+- Right to left
+- Bottom to top
+
+If there are multiple starting points with the same orientation, we
+order them in the following fashion:
+- Left to right: *top to bottom*, then if there are still multiple on
+  the same line, *left to right*.
+- Top to bottom: *left to right*, then if there are still multiple on
+  the same row, *top to bottom*.
+- Right to left: *top to bottom*, then if there are still multiple on
+  the same line, *right to left*.
+- Bottom to top: *left to right*, then if there are still multiple on
+  the same line, *bottom to top*.
+
+In order to illustrate, here are all the possible cases for the
+ordering of the arguments. The number next to the start of a Path
+indicates which argument it will hold: 1 means the first argument from
+the left, 2 the second, ...
+
+#+Begin_src bauge
+1 ╾     2 ╾   4 ╿   5 ╿
+                   ╼ 7  
+3 ╾       ╽ 12      6 ╿
+
+              ╼ 9  ╼ 8
+╽ 10      ╽ 11
+#+End_src
+
+Let's take a more concrete case: we consider the function =square(Int,
+Int, Int, Int) -> Square=, which takes the X and Y coordinate of a
+square, and its Width and Height, and returns a Square structure. We
+can then order our arguments in this way (the text here is indicative
+and is not tied to any correct syntax; it only illustrates which
+argument is on which path).
+
+#+Begin_src bauge
+         ╿       ╿
+       Width   Height
+
+╾── X
+
+╾── Y
+#+End_src
 
