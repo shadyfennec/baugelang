@@ -1,0 +1,489 @@
+#+Title: Bauge programming language initial ideas and design document
+
+* What is Bauge
+Bauge is an idea for a programming language that uses /box-drawing
+characters/ as its basis for execution flow. Box drawing characters can
+be use to draw figures using Unicode characters, such as this:
+
+#+Begin_example
+┌─────────────┐
+│ Box example ├── Text on line ──→
+└─────────────┘
+#+End_example
+
+Different fonts might render this example differently, depending on
+their support of the characters.
+
+The idea for Bauge came from the [[https://hackage.haskell.org/package/needle][Needle package for Haskell]], which
+"ASCII-fied arrow notation". I want to take the idea further, and make
+a small, working programming language using box drawing characters and
+arrows.
+
+The main aspects I want Bauge to have are:
+- Purely/mainly functional programming language
+- Parallelism using different arrows
+- Turing-complete
+
+* First ideas of what Bauge should look like
+** Language features
+*** Paths
+Paths are the defining features of the language. They describe the
+series of transformations and functions applied to one or more
+variables of the program.
+
+Path can begin in two ways:
+- With a parameter of the current function, written as "╾",
+- With a primitive value, such as the number 1 or the string "hello";
+  in which case, the primitive is written, followed by the path: "1 ──
+  ..."
+
+A path contains one or more variables and goes in one direction
+only. Initially, the path only carries the initial values, but
+additional variables can be added by /joining/ two paths. The path that
+continues is the one carrying the variables; the variable(s) coming
+from the merged path are appended to the list of variables of the
+continuing path.
+
+For example, let's take this simple path (the text between the "#(" and ")#" is a comment):
+#+Begin_src bauge
+        #(this path contains a String "hello")#
+"hello" ─────────────
+#+End_src
+
+The path starts from an initial value of a String, "hello". If we want
+to add another variable to the path, we need to /merge/ another path
+into it:
+
+#+Begin_src bauge
+"hello" ─────────┬─── #(the path now contains ("hello", 42))#
+                 │
+           42 ───┘
+#+End_src
+
+Another way of doing this is to merge multiple paths into a new
+one. In this case, the values are ordered from top to bottom, or left
+to right:
+
+#+Begin_src bauge
+"hello" ──┐
+          │ #(the path contains ("hello", 42, ()) )#
+42 ───────┼──────
+          │
+() ───────┘
+#+End_src
+
+Paths can only end in two ways:
+- With an arrow (→, ←, ↑, ↓), indicating that the current function
+  returns the values in the path.
+- With a cross ( ╳ ), making the program exit upon reaching it.
+
+Paths can also /branch out/: this action copies the values of the path
+to a new one. This can be done in two ways:
+- Using single paths (─, ┌, ...): this means the paths are executed
+  /sequentially/ from top to bottom or left to right.
+- Using double paths (═, ╢, ╧, ...): this means the paths are executed
+  *in parallel*.
+
+In any case, paths created this way must be /joined/ to the main path in
+order for the program to be correct. For example, this code computes
+the value =foo(4) * bar(3)=, by computing the two functions in parallel:
+
+#+Begin_src bauge
+          ╔════════ foo ══╗
+4 ────────╢               ╟─── * ───────
+          ╚═ -1 ═══ bar ══╝
+#+End_src
+
+*** Head and tail
+The variables on path behaves like a list; it is then possible to
+isolate the first, last or nth variable on a path using =head=, =tail= or
+=nth=.
+
+#+Begin_src bauge
+4 ──┐
+    ├─── head ── #(the path only has 4 on it)#
+5 ──┘
+#+End_src
+
+#+Begin_src bauge
+4 ──────┐
+"hi" ───┼─── nth 1 ── #(the path only has "hi" on it)#
+5 ──────┘
+#+End_src
+
+If paths intersect, it's possible to create /bridges/. A bridge on a
+single-width path can be formed in this way:
+
+#+Begin_src bauge
+4 ─────┐      ┌──── #(contains 4)#
+       │      ╧
+8 ───╢ │ ╟───────── #(contains 8)#
+       │      ╤
+       └──────┘
+#+End_src
+
+For double-width path, we use the inverse of the previous bridge
+characters:
+
+#+Begin_src bauge
+4 ═════╗      ╔════ #(contains 4)#
+       ║      ╨
+8 ═══╡ ║ ╞═════════ #(contains 8)#
+       ║      ╥
+       ╚══════╝
+#+End_src
+
+*** Named variables
+Up until now, all the variables on the paths were unnamed. But
+situations can arise where we would need a way to differentiate
+between the different variables; this can be done by assigning a name
+(a "label") to variables. This can be done in two ways:
+- At the start of the path: ~my_variable :=  5 ────~
+- On a path, assuming that there is only one variable on it: =─────
+  :my_variable ─────=.
+
+The name of a variable can then be used in a function application,
+replacing the traditional order of the arguments:
+
+#+Begin_src bauge
+a := 4 ─────────────┐
+                    ├── / b a ─────────
+b := 12 ────────────┘
+#+End_src
+
+A note: all arithmetic operations are specified using the /polish
+notation/: in the above, =b / a= is computed.
+
+*** Applying functions
+Functions in Bauge take a certain number of arguments, and output one
+or more values. A function applied to a path will take the values
+stored in a path as arguments, apply the function to them, and replace
+the arguments in the path with the result. If there are more variables
+in the path than there are arguments to the function, the additional
+variables are untouched.
+
+For example, here is the code to add two numbers:
+
+#+Begin_src bauge
+5 ──┐
+9 ──┴── + ── #(result: 14)#
+#+End_src
+
+For the ease of writing programs, some arguments can be supplied
+directly without the need of a variable in the path.
+
+#+Begin_src bauge
+2 ───── + 1 ────── #(increments 2 to 3)#
+#+End_src
+
+If we need to have an unnamed variable at a certain place, we can use
+the placeholder =_=: For example, this code decrements the variable by
+one.
+
+#+Begin_src bauge
+4 ────── - _ 1 ──────── #(decrements 4 to 3)#
+#+End_src
+
+Due to the polish notation, removing the placeholder would computer
+=1 - 4=, which is not the result we're trying to achieve.
+
+*** Flow control
+Controlling the flow of the program, using /conditions/ and /loops/, is
+done using special keywords, which affect how branch path are
+interpreted. 
+
+**** Conditional branching (if)
+#+Begin_src bauge
+5 ──────┬──────────────────────────┬── if condition ──┐
+        └─ > 10 ── :condition ─────┘                  │
+                                                      │
+                  ┌───────────────────────────────────┴──────────┐
+                  │                                              │
+    println "10 is greater than {}"                println "10 is smaller than {}"
+                  │                                              │
+                  ↓                                              ↓                
+#+End_src
+
+Let's analyze the code above. We begin with an unnamed integer with a
+value of 5. We then branch out sequentially: we keep the value of 5 on
+the main path, and we compute =10 > 5= on the second path, transforming
+the value 5 to =true=. We name this variable =condition=. We then join
+the diverging paths into one, appending our =condition= variable to the
+list of variables on the main path: it now has for value =(5,
+condition: false)=.
+
+We then use the =if= keyword, using =condition= as the boolean
+condition. Then, we offer two paths of execution: the leftmost one is
+executed if the condition is true, while the rightmost one is executed
+if the condition is false. Since the 10 is greater than 5, we print
+"10 is greater than 5". The print pattern has one placeholder, and so
+uses the first variable on the path, which is our initial variable =5=,
+as the value that replaces the placeholder.
+
+This also showcases that the flow of a program can be from top to
+bottom, and not only from left to right.
+
+**** Loops
+There are currently two looping keywords: =while= and =loop=; as well as
+the =break= keyword for breaking out of a loop.
+
+A =loop= is an unconditional loop; it can only be exited using a =break=
+or by exiting the program. The path following a loop should also
+"loop" on itself, and is read in a clockwise manner. The rest of the
+program is written after the =break= keyword.
+
+#+Begin_src bauge
+                         ┌───── = 0 ─────┐
+10 ──────────── loop ─┬──┴───────────────┴─ if ──┬── break ──────────── println "loop finished"
+                      │                          │
+                      └── - _ 1 ───────── tail ──┘
+#+End_src
+
+The above code starts with a value of 10 on the path, then starts a
+=loop=. Since loops are read in a clockwise fashion, the straight path
+is taken first. We branch out to pre-pend the boolean value of =10 = 0=
+to the path variables. We then =if= on it; if it's true, we can =break=
+out of the loop, and print the message; but since this is false, we go
+down and left. We remove the boolean on the path using =tail=, which
+leaves only the original value of 10, and we decrement it by one. We
+then go back to the start of the loop, and can start it again, this
+time with a value of =9=.
+
+A =while= loop is a conditional loop, that is, it exits the loop when
+the condition is false. The syntax of the =while= is a bit different: it
+takes as an "argument" a condition expression. The path leading out of
+the while has to branch in two ways:
+- The top or left branch is the loop, in which the instructions are to
+  be carried out
+- The bottom or right branch is the rest of the code, after the loop
+  is finished.
+
+Since we need to check the condition at each loop, the looping path
+must be injected back into the =while= keyword.
+
+We can rewrite the previous loop using a =while=:
+
+#+Begin_src bauge
+                    ┌──────── - _ 1 ─────┐
+                    │                    │
+10 ───────────── while != 0 ─────────────┴─────────── println "while finished"
+#+End_src
+
+*** Pattern matching
+Pattern matching is carried out using the =match= keyword. Following
+this keyword, the path can branch out as many times as necessary for
+the different patterns to be analyzed. The pattern matching is very
+similar to the one Rust uses. Each of the match paths should first
+contain the pattern to match, then the instructions for that match.
+
+=match= matches the entirety of the path variable if no argument is
+passed; if we want to match the first =n= variable, we can specify the
+number to match after the keyword: =match 3= will match the first 3
+variables. It is also possible to use named variables: =match num= will
+match the variable =num= on the path.
+
+The default pattern is the placeholder =_=.
+
+#+Begin_src bauge
+                          ┌─ "bar" ─── println "matched bar" 
+                          │
+"foo" ──────────── match ─┼─ "baz" ─── println "matched baz"
+                          │
+                          └─ _ ─────── println "I don't know you"
+#+End_src
+
+*** Types
+The current primitive types in Bauge are:
+- Int: unsigned 32-bit integers
+- SignedInt: signed 32-bit integers
+- Float: signed 32-bit floats
+- Byte: unsgined 8-bit value
+- Char: a single Unicode codepoint
+- String: a string of Char
+- Range: a range of Int, with the end 
+
+Sometimes, especially using numbers, the type to use can be
+ambiguous. We can specify the type of a value using this notation:
+
+#+Begin_src bauge
+                             #(6 is a SignedInt by type inference)#
+my_var: SignedInt := 3 ─── - _ 6 ───── ...
+#+End_src
+
+**** Int
+An /Int/ is a 32-bit unsigned number. The following values are Ints:
+- =10=
+- =0xA32B=
+- =0b110110=
+
+Ints can overflow to 0 and underflow to 2^32 - 1. There are special
+Int values: =Int::Min=, which is equal to 0, and =Int::Max=, which is
+equal to 2^32 - 1.
+
+**** SignedInt
+A /SignedInt/ is a 32-bit signed integer. The following values are
+SignedInts:
+- =-10=
+- =0xBB32=
+- =0b10111011=
+
+SignedInts can overflow to -2^31, and underflow to
+2^31 - 1. There are special SignedInt values: =SignedInt::Min=, which is
+equal to -2^31, and =SignedInt::Max=, which is equal to 2^31 - 1.
+
+**** Float
+A /Float/ is a 32-bit signed floating-point number. They can be written
+as =10.341=, or =10= if it's round and the type inference allows it.
+
+**** Byte
+A /Byte/ is a 8-bit unsigned value, going from 0 to 255. The following
+values are Bytes:
+- =65=
+- =0x1B=
+- =0b1101=
+
+Bytes can overflow to 0 and underflow to 255. There are special Byte
+values: Byte::Min, which equals to 0, and Byte::Max, which equals
+to 255.
+
+**** Char
+A /Char/ is an UTF-8 encoded Unicode codepoint. It is *not* a single ASCII
+character as with other languages such as C or Java; this role is
+assumed by the Byte in Bauge. A Char is written in single quotes. The
+following values are Chars:
+- ='a'=,
+- ='א'=,
+- ='中'=,
+- ='🌈'=,
+
+**** String
+A /String/ is one or more /Char/ characters together. The following values
+are Strings:
+- ="hello world"=
+- ="大家好"=
+- ="✨ salut à tous ✨"=
+
+**** Range
+A /Range/ is a range of unsigned Ints, delimited by two Ints. The range
+includes the start and excludes the end. It is written using the =..=
+operator. For example, the range =1..4= contains the numbers 1, 2 and 3.
+
+*** Defining functions
+A function is a path that ends correctly, enclosed in a box. The top
+of the box contains the /signature/ of the function, acting as the
+"title" of the function-box. The function definition is of the form:
+=name: (arg_a: TypeA, arg_b: TypeB, ...) -> ReturnType=.
+
+#+Begin_src bauge
+┌─ my_function: (Int, String) -> Bool ────┐
+│                                         │
+│    #(The paths are written in here)#    │
+│                                         │
+└─────────────────────────────────────────┘
+#+End_src
+
+The =main= function box can be omitted, in which case its signature is
+=main: () -> ()=.
+
+Let's write the Fibonacci function in a recursive manner using what we
+have so far:
+
+#+Begin_src bauge
+┌─ fibonacci: (Int) -> Int ─────────────────────────────────────┐
+│                                                               │
+│                ┌─ 0 ───→                                      │
+│                │                                              │
+│  ╾──── match ──┼─ 1 ───→                                      │
+│                │                                              │
+│                └─ _ ────┬─ - _ 1 ─── fibonacci ───┬─ + ───→   │
+│                         └─ - _ 2 ─── fibonacci ───┘           │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
+#+End_src
+
+Let's analyze this. We declare a function, =fibonacci=, which takes a
+single Int and returns an Int. We then start our path with the
+function's argument, which we =match=. If it is 0 or 1, we return what's
+on the path, which is either 0 or 1. If the value is neither, we then
+have two branching paths: on one path, we decrement the value by one,
+and call recursively the =fibonacci= function. On the other path, we do
+the same, except that we decrement by two the value on the path.
+
+At the junction of the two paths, we have now two Int on the path; we
+add them together to get the single Int value we want, and then return
+it.
+
+*** Closures
+Paths can also contain /closures/: functions that can be passed as
+parameters of other functions. This is done by declaring a function
+box inside of the current function, and linking it to a path, much
+like having a starting value to a new path.
+
+#+Begin_src bauge
+(0..10) ─────────────────┬────── foreach ───────────────────→
+                         │
+       ┌─ Int -> () ─────┴──────┐
+       │                        │
+       │  ╾─ println "{}" ───→  │
+       │                        │
+       └────────────────────────┘
+#+End_src
+
+We first have a range of numbers on the path. Then, we declare an
+anonymous function, which takes an Int and returns nothing, which
+prints the argument. Then, we apply the function =foreach= on the path,
+which effectively prints each value in the range.
+
+For the ease of use of the language, we can also use functions this
+way:
+
+#+Begin_src bauge
+["foo", "bar", "baz"] ───────────── foreach println ─────────→
+#+End_src
+
+This works because the function =foreach= has the signature
+=(Iterator<T>, (T -> ()) -> ()=: A function which takes an iterator of
+values, and a function which takes a single value and returns nothing;
+=foreach= itself returns nothing as well.
+
+Here, we have an iterator of =String=, and a function, =println=, which
+takes a string and then an arbitrary number of arguments, and returns
+nothing; this fits the type requirement.
+
+* Code examples
+** Guessing game
+#+Begin_src bauge
+0     100
+└──────┴──── .. ──── pick ──┐
+┌───────────────────────────┘
+└─ loop ──┬─── input "Pick a number:" ──┬────────────────────┬── match cmp ──┬── Equal ─── println "You win!" ─── break ───→
+          │                             └─ compare ── :cmp ──┘               │
+          │                                                                  │
+          │                             ┌─── println "Too high!" ── Greater ─┤
+          │                             │                                    │
+          └───────────── head ──────────┴─── println "Too low!" ─── Less ────┘
+#+End_src
+
+We begin by creating a range of 100 numbers, between 0 and 99. We then
+=pick= one at random. After that, we enter a =loop=. At the start of the
+loop, we ask for the user to pick a number using the =input=
+function. Our path now contains the random number, then the guessed
+number. Then, we branch out; on the bottom branch, we use =compare=,
+which consumes both of the values on the path and outputs a single
+"comparison" value, which can be either =Equal=, =Greater= or =Less=. We
+then rejoin the main path by the bottom, which gives a path with the
+random number, the guessed number, and the comparison value.
+
+After that, we match on the comparison value: if it's =Equal=, the user
+won, and the program returns. If not, we print a message whether the
+guess was too high or low. Then, we keep the =head= of our path, which
+is the random number, and go back to the beginning of the loop.
+
+* Questions to answer
+- How to do branching (if, ...)
+* Ideas for stuff in the language
+- Write the standard library of the program in literate programming
+- Vectors
+- Vectorize function: takes all variables on path and creates a single
+  vector of the variables, assuming the variables are all of the same
+  type
