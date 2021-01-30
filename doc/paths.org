@@ -1,3 +1,75 @@
 #+Title: Paths
 
-The *Path* is the fundamental concept of Bauge.
+The *Path* is the fundamental concept of Bauge. A Bauge program follows
+one or more path, sequentially or in parallel, and executes the
+instructions that are on the path.
+
+* How Paths are written
+Paths use a wide range of characters to form different directions,
+branchings, starts and ends. Here are the possible characters used for
+paths:
+
+| Character | UTF-8 Codepoint | Unicode name                               |
+|-----------+-----------------+--------------------------------------------|
+| =┌=         | U+250C          | BOX DRAWINGS LIGHT DOWN AND RIGHT          |
+| =┐=         | U+2510          | BOX DRAWINGS LIGHT DOWN AND LEFT           |
+| =└=         | U+2514          | BOX DRAWINGS LIGHT UP AND RIGHT            |
+| =┘=         | U+2518          | BOX DRAWINGS LIGHT UP AND LEFT             |
+| =│=         | U+2502          | BOX DRAWINGS LIGHT VERTICAL                |
+| =─=         | U+2500          | BOX DRAWINGS LIGHT HORIZONTAL              |
+| =┼=         | U+253C          | BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL |
+| =├=         | U+251C          | BOX DRAWINGS LIGHT VERTICAL AND RIGHT      |
+| =┤=         | U+2524          | BOX DRAWINGS LIGHT VERTICAL AND LEFT       |
+| =┬=         | U+252C          | BOX DRAWINGS LIGHT DOWN AND HORIZONTAL     |
+| =┴=         | U+2534          | BOX DRAWINGS LIGHT UP AND HORIZONTAL       |
+
+Paths can also take the form of /doubly-lined Paths/, which mean they
+are executed in parallel (more on that later). The characters used are:
+
+| Character | UTF-8 Codepoint | Unicode name                                |
+|-----------+-----------------+---------------------------------------------|
+| =╔=         | U+2554          | BOX DRAWINGS DOUBLE DOWN AND RIGHT          |
+| =╗=         | U+2557          | BOX DRAWINGS DOUBLE DOWN AND LEFT           |
+| =╚=         | U+255A          | BOX DRAWINGS DOUBLE UP AND RIGHT            |
+| =╝=         | U+255D          | BOX DRAWINGS DOUBLE UP AND LEFT             |
+| =║=         | U+2551          | BOX DRAWINGS DOUBLE VERTICAL                |
+| =═=         | U+2550          | BOX DRAWINGS DOUBLE HORIZONTAL              |
+| =╬=         | U+256C          | BOX DRAWINGS DOUBLE VERTICAL AND HORIZONTAL |
+| =╠=         | U+2560          | BOX DRAWINGS DOUBLE VERTICAL AND RIGHT      |
+| =╣=         | U+2563          | BOX DRAWINGS DOUBLE VERTICAL AND LEFT       |
+| =╦=         | U+2566          | BOX DRAWINGS DOUBLE DOWN AND HORIZONTAL     |
+| =╩=         | U+2569          | BOX DRAWINGS DOUBLE UP AND HORIZONTAL       |
+
+Additionally, there are characters that are used to join double Paths
+and single Paths:
+
+| Character | UTF-8 Codepoint | Unicode name                                       |
+|-----------+-----------------+----------------------------------------------------|
+| =╒=         | U+2552          | BOX DRAWINGS DOWN SINGLE AND RIGHT DOUBLE          |
+| =╓=         | U+2553          | BOX DRAWINGS DOWN DOUBLE AND RIGHT SINGLE          |
+| =╕=         | U+2555          | BOX DRAWINGS DOWN SINGLE AND LEFT DOUBLE           |
+| =╖=         | U+2556          | BOX DRAWINGS DOWN DOUBLE AND LEFT SINGLE           |
+| =╘=         | U+2558          | BOX DRAWINGS UP SINGLE AND RIGHT DOUBLE            |
+| =╙=         | U+2559          | BOX DRAWINGS UP DOUBLE AND RIGHT SINGLE            |
+| =╛=         | U+255B          | BOX DRAWINGS UP SINGLE AND LEFT DOUBLE             |
+| =╜=         | U+255C          | BOX DRAWINGS UP DOUBLE AND LEFT SINGLE             |
+| =╞=         | U+255E          | BOX DRAWINGS VERTICAL SINGLE AND RIGHT DOUBLE      |
+| =╟=         | U+255F          | BOX DRAWINGS VERTICAL DOUBLE AND RIGHT SINGLE      |
+| =╡=         | U+2561          | BOX DRAWINGS VERTICAL SINGLE AND LEFT DOUBLE       |
+| =╢=         | U+2562          | BOX DRAWINGS VERTICAL DOUBLE AND LEFT SINGLE       |
+| =╤=         | U+2564          | BOX DRAWINGS DOWN SINGLE AND HORIZONTAL DOUBLE     |
+| =╥=         | U+2565          | BOX DRAWINGS DOWN DOUBLE AND HORIZONTAL SINGLE     |
+| =╧=         | U+2567          | BOX DRAWINGS UP SINGLE AND HORIZONTAL DOUBLE       |
+| =╨=         | U+2568          | BOX DRAWINGS UP DOUBLE AND HORIZONTAL SINGLE       |
+| =╪=         | U+256A          | BOX DRAWINGS VERTICAL SINGLE AND HORIZONTAL DOUBLE |
+| =╫=         | U+256B          | BOX DRAWINGS VERTICAL DOUBLE AND HORIZONTAL SINGLE |
+
+Finally, there are special characters used in Paths that have a
+specific meaning:
+
+| Characters | UTF-8 Codepoints | Meaning                                 |
+|------------+------------------+-----------------------------------------|
+| =╼=, =╽=, =╼=, =╿= | U+257C to U+257F | Start the Path with a function argument |
+| =╳=          | U+2573           | End the program with an error           |
+| =→=, =←=, =↑=, =↓= | U+2190 to U+2193 | Returns with the content of the path    |
+
