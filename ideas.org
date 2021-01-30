@@ -293,15 +293,6 @@ The default pattern is the placeholder =_=.
 #+End_src
 
 *** Types
-The current primitive types in Bauge are:
-- Int: unsigned 32-bit integers
-- SignedInt: signed 32-bit integers
-- Float: signed 32-bit floats
-- Byte: unsgined 8-bit value
-- Char: a single Unicode codepoint
-- String: a string of Char
-- Range: a range of Int, with the end 
-
 Sometimes, especially using numbers, the type to use can be
 ambiguous. We can specify the type of a value using this notation:
 
@@ -368,6 +359,16 @@ A /Range/ is a range of unsigned Ints, delimited by two Ints. The range
 includes the start and excludes the end. It is written using the =..=
 operator. For example, the range =1..4= contains the numbers 1, 2 and 3.
 
+**** Vector
+A /Vec/ (short for /Vectors/) is a collection of elements of the same
+type. It can either be initialized empty, using Vec::new, or created
+dynamically with some values, using the square bracket notations: =[1,
+2, 3]=. 
+**** Tuple
+A /Tuple/ is a heterogeneous collection of elements; that is, it can
+contain elements of different types. It is different from a vector, in
+that it is not an iterator: it is merely a simple way to hold values
+of different types together, much like a C =struct=.
 *** Defining functions
 A function is a path that ends correctly, enclosed in a box. The top
 of the box contains the /signature/ of the function, acting as the
@@ -450,10 +451,45 @@ Here, we have an iterator of =String=, and a function, =println=, which
 takes a string and then an arbitrary number of arguments, and returns
 nothing; this fits the type requirement.
 
+*** Comments and documentation
+We've already seen comments that take the form of =#(
+comment... )#=. There is also a way to create documentation for a
+function: by separating the box in two from top to bottom, with the
+top part being the documentation, while the bottom part is the code.
+Let's document the =fibonacci= function from before:
+
+#+Begin_src bauge
+┌─ fibonacci: (Int) -> Int ─────────────────────────────────────┐
+│                                                               │
+│   This function calculates the Fibonacci number for any       │
+│   unsigned integer. This implementation uses the recursive    │
+│   method without any memoisation; it is done by checking      │
+│   the first argument:                                         │
+│   - If it's 0 or 1, then we return directly the argument,     │
+│   - If not, we calculate recursively the previous two         │
+│     Fibonacci numbers, and add them to get the current one.   │
+│                                                               │
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│                ┌─ 0 ───→                                      │
+│                │                                              │
+│  ╾──── match ──┼─ 1 ───→                                      │
+│                │                                              │
+│                └─ _ ────┬─ - _ 1 ─── fibonacci ───┬─ + ───→   │
+│                         └─ - _ 2 ─── fibonacci ───┘           │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
+#+End_src
+
+** Standard library
+*** Vectors
+*** I/O
+*** Primitives
+*** Math
 * Code examples
 ** Guessing game
 #+Begin_src bauge
-0     100
+100    0
 └──────┴──── .. ──── pick ──┐
 ┌───────────────────────────┘
 └─ loop ──┬─── input "Pick a number:" ──┬────────────────────┬── match cmp ──┬── Equal ─── println "You win!" ─── break ───→
@@ -479,11 +515,9 @@ won, and the program returns. If not, we print a message whether the
 guess was too high or low. Then, we keep the =head= of our path, which
 is the random number, and go back to the beginning of the loop.
 
-* Questions to answer
-- How to do branching (if, ...)
 * Ideas for stuff in the language
 - Write the standard library of the program in literate programming
-- Vectors
+- Generic types
 - Vectorize function: takes all variables on path and creates a single
   vector of the variables, assuming the variables are all of the same
   type
