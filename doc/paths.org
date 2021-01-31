@@ -94,7 +94,6 @@ can either start with an argument of the current function, or with an
 initial, arbitrary value.
 
 ** Start of a Path
-
 *** Initial value
 Paths can start with an initial value. For example, this path starts
 with the value =20=. To be more accurate, the Path holds a list of
@@ -107,7 +106,7 @@ values containing a single one, with the value of =20=.
 When starting the Path in this manner in an /horizontal orientation/,
 the value must be written on the *same line* as the starting point of
 the Path. In a /vertical orientation/, the value must have at least one
-character (whitespace or not) above or below the starting point. For
+character (whitespace or not) *above or below the starting point*. For
 example, the following paths are valid:
 
 #+Begin_src bauge
@@ -189,3 +188,196 @@ argument is on which path).
 ╾── Y
 #+End_src
 
+**** Multiple arguments on a single path
+If there is less Path argument starts than there are arguments to the
+function, then all the remaining arguments are stored on the last
+Path. For example, we can rewrite the start of the previous =square=
+function in this manner:
+
+#+Begin_src bauge
+╾── X, Y, Width, Height
+#+End_src
+
+The Path contains a list of 4 values, being the arguments of the
+function in order.
+
+** Conditionality of paths
+Paths can either be *conditional* or *unconditional*, depending on how
+they are generated.
+
+*Unconditional* Paths are the default Paths in Bauge. Each unconditional
+Path is executed at some point, unless the program exits in the
+meantime.
+
+*Conditional* Paths stem from keywords such as =if=, =match=, and so on. The
+program can potentially take all of the Paths, but only one will be
+chosen in a single iteration.
+
+In the following example, unconditional Paths are marked with a =U=, and
+conditional Paths are marked with a =C=. This syntax is purely for
+demonstrative purposes and does not reflect any meaningful keyword or
+syntax of Bauge.
+
+#+Begin_src bauge
+20 ─────U──────
+                     ┌───C───
+40 ─────U────── if ──┤
+                     └───C───
+#+End_src
+
+In this example, both of the unconditional Paths will be executed
+sequentially; but on the second Path, only one of the two conditional
+Paths will be taken.
+
+If an unconditional Path joins another unconditional Path, then the
+Paths are merged, and the new Path is considered having two starts
+(more on that later).
+
+** Path execution
+We only consider here single Paths; that is, Paths using the "single"
+version of the characters, and not the "double" characters. "Double"
+characters denote parallel Paths, which are covered in their own
+section.
+
+*** Returns
+In any case, a Bauge code block can have *one and only one
+unconditional return*. Unconditional returns are ends of unconditional
+Paths. A block can have as many *conditional returns* (returns on
+conditional Paths), as long as they *come from the same unconditional
+Path*. If there is already an unconditional return, there cannot be any
+other return, even conditional.
+
+For example, the following block is valid: there is only one
+unconditional Path, with two starts and a junction. There are two
+returns, but they are conditional, and are generated from the same
+unconditional Path.
+
+#+Begin_src bauge
+╾──────────┐         ┌────→
+           │         │
+╾──────────┴──── if ─┴────→
+#+End_src
+
+While the following is not: there is an unconditional return at the
+top, and two conditional returns underneath. While having two
+conditional returns is OK, the unconditional return makes the block
+invalid.
+
+#+Begin_src bauge
+╾─────────────────────────→
+            ┌─────────────→
+╾────── if ─┴─────────────→
+#+End_src
+
+*** Branching out
+A Path can branch out unconditionally (without any =if=, =match=,
+... keywords). This creates a *copy* of the Path, and all of its
+values. For example, we duplicate here a Path, and both the new and
+old path have the same values (the =#(...)#= notation is a comment,
+which are covered in their own section).
+
+#+Begin_src bauge
+"foo" ────────┬─────── #(contains "foo")#
+              │
+              └─────── #(also contains "foo")#
+#+End_src
+
+The two Paths are *bound unconditionally*. This means that they are, in
+context, unconditional, even if the starting Path is conditional. This
+enables use to avoid this kind of problem:
+
+#+Begin_src bauge
+╾──────── if ───┬───────────→
+                │
+                └──────┬────→ 
+                       └────→
+#+End_src
+
+If the program end up taking the top conditional Path, there is only
+one return, so everything is fine. But the bottom conditional Path
+branches out unconditionally, creating two copies of the same
+conditional Path. Since both of them, in this context, will be
+executed, there is a conflict for the return. This is why they are
+bound unconditionally and considered as such. Let's illustrate with
+labels to understand better:
+
+#+Begin_src bauge
+╾───U0─── if ───┬──────────C0────────────→ C0
+                │
+                └─────C0──────┬───C0U1───→ C0U1
+                              └───C0U2───→ C0U2
+#+End_src
+
+The first returns comes from the path C0, which is conditional. The
+other two also come from C0, but are first and foremost unconditional
+themselves, making the block invalid.
+
+*** Branching in
+Paths can join another by /branching in/. The semantics of branching in
+have different meanings depending on the type of the Path.
+
+**** Unconditional branching in
+*Unconditional* branching in, that is, when an unconditional Path merges
+into another unconditional Path, *appends or pre-pends the values in the
+incoming Path into the receiving Path*, depending on where the incoming
+Path comes from.
+
+Values are added to the start of the list of values of the receiving
+Path if the incoming Path joins in from the left (if the receiving
+Path is /vertical/) or from the top (if it is /horizontal/).
+
+#+Begin_src bauge
+20 ─────────┐
+            │
+"foo" ──────┴─────── #(contains 20, "foo")#
+#+End_src
+
+Values are added to the end of the list if the incoming Path comes
+from the right for /vertical/ Paths or the bottom for /horizontal/ Paths.
+
+#+Begin_src bauge
+"foo" ───────┬────── #(contains "foo", 20)#
+             │
+20 ──────────┘
+#+End_src
+
+Branching in can be combined with branching out to emulate the
+creation of variables in languages such as Python (more on the
+application of functions later)
+
+#+Begin_src bauge
+42 ──────┬─────────────┬────── #(contains 42, 45)#
+         └──── + 3 ────┘
+#+End_src
+
+**** Conditional branching in
+Two conditional Paths can join, merging together. If the two
+conditional Path "end" the current conditionality scope, that is, if
+they are the last of their scope, then the scope is closed and the
+Path assumes the conditionality of the scope before it. Let's take an
+example to understand:
+
+#+Begin_src bauge
+╾───U0─── if ───┬───U0C0────┬─────U0─────
+                │           │
+                └───U0C0────┘
+#+End_src
+
+When we conditionally branch out due to the =if=, the scope is =U0 C0=:
+the conditional Path group =C0= that was generated from the
+unconditional Path =U0=. But then, we join the last two Path belonging
+to that scope: since having a single Path belonging to a conditional
+group is useless, the scope is ended, and the Path continues as an
+unconditional one.
+
+This is similar to how an =if...else= scope is ended in Rust:
+
+#+Begin_src rust
+// Here, we are at U0
+if condition {
+    // Top branch, scope is U0 C0
+} else {
+    // Bottom branch, scope is U0 C0
+}
+// Conditional scope ended, scope is the same as before: U0
+#+End_src
