@@ -381,3 +381,68 @@ if condition {
 }
 // Conditional scope ended, scope is the same as before: U0
 #+End_src
+* Controlling data on a Path
+There are multiple ways to control and modify the values stored in
+Path. One of them is using [[./functions.org][function calls]], which is discussed in its
+own documentation; another is the use of *Path keywords*. These keywords
+can be used to retain one or multiple variables on the Path, modify
+their order, ... These operations rely on the fact that the variables
+on Paths take the form of a list.
+
+** Retaining variables
+This category of keywords enables you to select one or more variables
+in the list to retain, while discarding the others.
+
+*** =head= and =tail=: first and last value
+The =head= keyword retains only the first variable on the Path, while
+=tail= retains the last.
+
+#+Begin_src Bauge
+20 ───────┐
+          │
+"foo" ────┴───── head ───── #(contains only 20)#
+
+
+20 ───────┐
+          │
+"foo" ────┴───── tail ───── #(contains only "foo")#
+#+End_src
+
+Using either =head= or =tail= when the Path is empty is an error.
+
+*** =empty=: retain nothing
+If you need to clear the values on a Path, you can use =empty=:
+
+#+Begin_src bauge
+20 ─────── empty ─────── #(contains nothing)#
+#+End_src
+
+*** =first= and =last=: first n and last n values
+If you need to retain more than one value either at the beginning or
+the end, you can use either ~first n~ to retain the first =n= values, and
+=last n= for the last =n= values on the Path. The argument to the keyword
+be passed immediately or use the first value on the Path (more details
+in [[./functions.org][the documentation of function calls]]).
+
+#+Begin_src bauge
+2 ──────┐
+        │
+"foo" ──┴──┬──── last 2 ─── #(contains "foo", "bar")#
+           │
+"bar ──────┘
+#+End_src
+
+#+Begin_src bauge
+2 ──────┐
+        │
+"foo" ──┴──┬──── last ─── #(contains "foo", "bar" since the first value on the Path is 2)#
+           │
+"bar ──────┘
+#+End_src
+
+Note: should not be confused with =head= and =tail=, which only retain one
+value either at the start or end of the Path list.
+
+** Modifying the order
+
+** Aggregating and expanding
