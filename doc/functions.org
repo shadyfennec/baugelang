@@ -1,0 +1,87 @@
+#+Title: Functions
+
+*Functions* are the main way to work on the data stored on [[./paths.org][Paths]]. They
+can be user-defined, and there are some built-in functions in the
+standard library.
+
+* Function application
+Functions are applied on Paths by writing the functions and the
+potential arguments on them. For example, this path gets applied the
+function =foo= to its stored value.
+
+#+Begin_src bauge
+20 ─────── foo ─────── #(contains foo(20))#
+#+End_src
+
+** Arguments
+Functions can take /arguments/. Arguments are mainly supplied to the
+functions via the values the Path holds. They are passed to the
+function in order: if a Path holds (20, "bar"), then a function taking
+two parameters will get 20 as the first parameter, and "bar" as the
+second.
+
+#+Begin_src bauge
+20 ─────┐
+        │
+"bar" ──┴─────── foo ───────
+#+End_src
+
+It is possible for a function to be applied on a path with more values
+than the function has arguments. In this case, only the first
+arguments that fit the function's definition will be used. For
+example, is =foo()= only takes one argument, only the first value on the
+Path is used:
+
+#+Begin_src bauge
+20 ─────┐
+        │
+"bar" ──┴─────── foo ─────── #(only 20 is used)#
+#+End_src
+
+It is also possible to provide /immediate arguments/; that is, provide
+directly a value to an argument that isn't on the Path. In this case,
+the use of the placeholder =_= is needed to signal at which position the
+values on the Path should be. Let's look at an example to understand
+this better. Let's say we have the function =+=: it takes 2 arguments
+and returns the addition of these two arguments. Let's say we want to
+have a Bauge program that increments a value. We could do it the
+"traditional way":
+
+#+Begin_src bauge
+1 ────┐
+      │
+╾─────┴──── + ────── #(contains the incremented argument)#
+#+End_src
+
+But getting all the arguments on the Path before adding is
+cumbersome. Since it is a constant, we can directly use =1= on the
+function invocation:
+
+#+Begin_src bauge
+╾─────── + 1 ────── #(uses an immediate argument)#
+#+End_src
+
+Doing so means that the 1 takes the first argument position: we are
+computing =1 + argument=.
+
+Now let's try to decrement the value. Easy, let's replace the =+= with a
+=-=:
+
+#+Begin_src bauge
+╾─────── - 1 ──────
+#+End_src
+
+Remember what the immediate argument does: it takes precedence over
+the variables on the Path! So what we're really computing is... =1 -
+arg=. This isn't a decremented value at all!
+
+As we said before, we need the placeholder =_= character. This indicates
+that the particular argument should be taken in priority by values on
+the Path. With that, we can write our decrementing program:
+
+#+Begin_src bauge
+╾─────── - _ 1 ────── #(contains the decremented value!)#
+#+End_src
+
+
+** Returned value

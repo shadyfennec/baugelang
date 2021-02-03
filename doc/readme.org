@@ -4,3 +4,4 @@ This is the index of the Bauge language documentation. This file lists
 the different pieces of documentation for the language.
 
 - [[./paths.org][Paths]]
+- [[./functions.org][Functions]]
