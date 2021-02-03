@@ -13,6 +13,28 @@ function =foo= to its stored value.
 20 ─────── foo ─────── #(contains foo(20))#
 #+End_src
 
+The same way as the initial values for a path, function calls should
+be written on the same line if the path is horizontal; or, if the path
+is vertical, the name should have at least one character between the
+two ends of the line. So, these function calls are valid:
+
+#+Begin_src bauge
+12 ──────── foo ───────┐
+                       │
+                      bar
+                       └──────
+#+End_src
+
+But these are not:
+
+#+Begin_src bauge
+          foo
+12 ────────────────────┐
+                       │
+                    bar
+                       └──────
+#+End_src
+
 ** Arguments
 Functions can take /arguments/. Arguments are mainly supplied to the
 functions via the values the Path holds. They are passed to the
@@ -73,7 +95,7 @@ Now let's try to decrement the value. Easy, let's replace the =+= with a
 
 Remember what the immediate argument does: it takes precedence over
 the variables on the Path! So what we're really computing is... =1 -
-arg=. This isn't a decremented value at all!
+argument=. This isn't a decremented value at all!
 
 As we said before, we need the placeholder =_= character. This indicates
 that the particular argument should be taken in priority by values on
@@ -83,5 +105,96 @@ the Path. With that, we can write our decrementing program:
 ╾─────── - _ 1 ────── #(contains the decremented value!)#
 #+End_src
 
+Note: this way of writing mathematical operations is called the /Polish
+Notation/. Another famous way of writing such operations is the /Reverse
+Polish Notation/: =1 2 += would mean =1 + 2= in this system.
+
+It is also possible to call a function without using arguments from
+the Path at all if all the arguments are provided as immediate
+arguments.
 
 ** Returned value
+A function *completely replaces* the values on the Path with its return
+value. Nothing is kept from the time before the function call: a Path
+only contains the return value of the function call after it has been
+called. One must be careful when calling functions; if there is a need
+to keep the other values on the Path, a junction out then in does the
+trick:
+
+#+Begin_src bauge
+20 ──────┬──────────┬──── #(now contains 20, 30)#
+         └── + 10 ──┘
+#+End_src
+
+* Defining functions
+Users can define functions in their programs, in order to use them
+later. Functions are basically Bauge code blocks, enclosed in a /box/,
+with eventually some documentation. A function has a /signature/,
+describing the types of the arguments.
+
+** The function box
+Functions are defined inside *boxes*. These are written using the same
+characters for the Path, but define the /area/ in which the function is
+written. A box is always rectangular. They look like this:
+
+#+Begin_src bauge
+┌────────────────────────────────┐
+│                                │
+│  #(write your function here)#  │
+│                                │
+└────────────────────────────────┘
+#+End_src
+
+This isn't a complete box. A function box needs the function /signature/.
+
+** Function signature
+A function's signature is the contract between you and the
+function. It tells you the name of the function, how many arguments
+the function expects, what type are these arguments, and the type of
+the returned value. A signature has the following structure:
+
+#+Begin_src
+function_name: (arg1_name: Arg1Type, arg2_name: Arg2Type, ...) -> ReturnType
+#+End_src
+
+The function's signature is placed on the top line of the function,
+like this:
+
+#+Begin_src bauge
+┌── foo: (Int) -> String ────────┐
+│                                │
+│  #(write your function here)#  │
+│                                │
+└────────────────────────────────┘
+#+End_src
+
+The signature shouldn't go over the vertical line on the right; if
+needs be, make the box larger.
+
+* An example: Fibonacci
+Let's try to write the =fibonacci()= function in Bauge, using everything
+we know so far. We're going to write the simplest version of it, using
+recursion and no /memoisation/.
+
+The signature of the =fibonacci= function is the following:
+
+#+Begin_src
+fibonacci: (Int) -> Int
+#+End_src
+
+The function takes a single integer, and returns the integer
+corresponding to the Fibonacci number of this input. Let's write the
+function box:
+
+#+Begin_src bauge
+┌─ fibonacci: (Int) -> Int ────────────┐
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+└──────────────────────────────────────┘
+#+End_src
+
+(The rest is To-Do: I haven't written the doc on operators like =if=,
+=match=, ...)
