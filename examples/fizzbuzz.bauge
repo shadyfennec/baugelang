@@ -1,0 +1,17 @@
+┏━ fizzbuzz: (Int) -> () ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                              ┃
+┃ - Print the integer passed as a parameter.                   ┃
+┃ - If the integer is divisible by 3, print "Fizz" instead.    ┃
+┃ - If the integer is divisible by 5, print "Buzz" instead.    ┃
+┃ - If the integer is divisible by both 3 and 5, print         ┃
+┃   "FizzBuzz" instead.                                        ┃
+┃                                                              ┃
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+┃                                                              ┃
+┃ ╾──┬─ % _ 3 ─┬── match ─┬─ (0, 0) ── println "FizzBuzz" ─┬─→ ┃
+┃    └─ % _ 5 ─┘          ├─ (0, _) ── println "Fizz" ─────┤   ┃
+┃                         ├─ (_, 0) ── println "Buzz" ─────┤   ┃
+┃                         ├─ (_, _) ── println ────────────┘   ┃
+┃                         └─ _ ────────╳                       ┃
+┃                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

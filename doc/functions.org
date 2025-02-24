@@ -133,16 +133,32 @@ with eventually some documentation. A function has a /signature/,
 describing the types of the arguments.
 
 ** The function box
-Functions are defined inside *boxes*. These are written using the same
-characters for the Path, but define the /area/ in which the function is
-written. A box is always rectangular. They look like this:
+Functions are defined inside *boxes*. These are written using heavy box
+characters, and define the /area/ in which the function is
+written. A box is always rectangular.
+
+| Character   | UTF-8 Codepoint | Unicode name                               |
+|-------------+-----------------+--------------------------------------------|
+| =┏=         | U+250F          | BOX DRAWINGS HEAVY DOWN AND RIGHT          |
+| =┓=         | U+2513          | BOX DRAWINGS HEAVY DOWN AND LEFT           |
+| =┗=         | U+2517          | BOX DRAWINGS HEAVY UP AND RIGHT            |
+| =┛=         | U+251B          | BOX DRAWINGS HEAVY UP AND LEFT             |
+| =┃=         | U+2503          | BOX DRAWINGS HEAVY VERTICAL                |
+| =━=         | U+2501          | BOX DRAWINGS HEAVY HORIZONTAL              |
+| =╋=         | U+254B          | BOX DRAWINGS HEAVY VERTICAL AND HORIZONTAL |
+| =┣=         | U+2523          | BOX DRAWINGS HEAVY VERTICAL AND RIGHT      |
+| =┫=         | U+252B          | BOX DRAWINGS HEAVY VERTICAL AND LEFT       |
+| =┳=         | U+2533          | BOX DRAWINGS HEAVY DOWN AND HORIZONTAL     |
+| =┻=         | U+253B          | BOX DRAWINGS HEAVY UP AND HORIZONTAL       |
+
+They look like this:
 
 #+Begin_src bauge
-┌────────────────────────────────┐
-│                                │
-│  #(write your function here)#  │
-│                                │
-└────────────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                ┃
+┃  #(write your function here)#  ┃
+┃                                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 #+End_src
 
 This isn't a complete box. A function box needs the function /signature/.
@@ -154,47 +170,25 @@ the function expects, what type are these arguments, and the type of
 the returned value. A signature has the following structure:
 
 #+Begin_src
-function_name: (arg1_name: Arg1Type, arg2_name: Arg2Type, ...) -> ReturnType
+function_name: (Arg1Type, Arg2Type, ...) -> ReturnType
+#+End_src
+
+If the function only takes one argument, the parenthesis can be omitted:
+
+#+Begin_src
+function_name: Arg1Type -> ReturnType
 #+End_src
 
 The function's signature is placed on the top line of the function,
 like this:
 
 #+Begin_src bauge
-┌── foo: (Int) -> String ────────┐
-│                                │
-│  #(write your function here)#  │
-│                                │
-└────────────────────────────────┘
+┏━ foo: Int -> String ━━━━━━━━━━━┓
+┃                                ┃
+┃  #(write your function here)#  ┃
+┃                                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 #+End_src
 
 The signature shouldn't go over the vertical line on the right; if
 needs be, make the box larger.
-
-* An example: Fibonacci
-Let's try to write the =fibonacci()= function in Bauge, using everything
-we know so far. We're going to write the simplest version of it, using
-recursion and no /memoisation/.
-
-The signature of the =fibonacci= function is the following:
-
-#+Begin_src
-fibonacci: (Int) -> Int
-#+End_src
-
-The function takes a single integer, and returns the integer
-corresponding to the Fibonacci number of this input. Let's write the
-function box:
-
-#+Begin_src bauge
-┌─ fibonacci: (Int) -> Int ────────────┐
-│                                      │
-│                                      │
-│                                      │
-│                                      │
-│                                      │
-└──────────────────────────────────────┘
-#+End_src
-
-(The rest is To-Do: I haven't written the doc on operators like =if=,
-=match=, ...)

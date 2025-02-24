@@ -9,8 +9,8 @@ Paths use a wide range of characters to form different directions,
 branchings, starts and ends. Here are the possible characters used for
 paths:
 
-| Character | UTF-8 Codepoint | Unicode name                               |
-|-----------+-----------------+--------------------------------------------|
+| Character   | UTF-8 Codepoint | Unicode name                               |
+|-------------+-----------------+--------------------------------------------|
 | =┌=         | U+250C          | BOX DRAWINGS LIGHT DOWN AND RIGHT          |
 | =┐=         | U+2510          | BOX DRAWINGS LIGHT DOWN AND LEFT           |
 | =└=         | U+2514          | BOX DRAWINGS LIGHT UP AND RIGHT            |
@@ -26,8 +26,8 @@ paths:
 Paths can also take the form of /doubly-lined Paths/, which mean they
 are executed in parallel (more on that later). The characters used are:
 
-| Character | UTF-8 Codepoint | Unicode name                                |
-|-----------+-----------------+---------------------------------------------|
+| Character   | UTF-8 Codepoint | Unicode name                                |
+|-------------+-----------------+---------------------------------------------|
 | =╔=         | U+2554          | BOX DRAWINGS DOUBLE DOWN AND RIGHT          |
 | =╗=         | U+2557          | BOX DRAWINGS DOUBLE DOWN AND LEFT           |
 | =╚=         | U+255A          | BOX DRAWINGS DOUBLE UP AND RIGHT            |
@@ -43,8 +43,8 @@ are executed in parallel (more on that later). The characters used are:
 Additionally, there are characters that are used to join double Paths
 and single Paths:
 
-| Character | UTF-8 Codepoint | Unicode name                                       |
-|-----------+-----------------+----------------------------------------------------|
+| Character   | UTF-8 Codepoint | Unicode name                                       |
+|-------------+-----------------+----------------------------------------------------|
 | =╒=         | U+2552          | BOX DRAWINGS DOWN SINGLE AND RIGHT DOUBLE          |
 | =╓=         | U+2553          | BOX DRAWINGS DOWN DOUBLE AND RIGHT SINGLE          |
 | =╕=         | U+2555          | BOX DRAWINGS DOWN SINGLE AND LEFT DOUBLE           |
@@ -64,13 +64,29 @@ and single Paths:
 | =╪=         | U+256A          | BOX DRAWINGS VERTICAL SINGLE AND HORIZONTAL DOUBLE |
 | =╫=         | U+256B          | BOX DRAWINGS VERTICAL DOUBLE AND HORIZONTAL SINGLE |
 
+There are also characters that are used to draw blocks:
+
+| Character | UTF-8 Codepoint | Unicode name                              |
+|-----------|-----------------|-------------------------------------------|
+| =━=       | U+2501          | BOX DRAWINGS HEAVY HORIZONTAL             |
+| =┃=       | U+2503          | BOX DRAWINGS HEAVY VERTICAL               |
+| =┏=       | U+250F          | BOX DRAWINGS HEAVY DOWN AND RIGHT         |
+| =┓=       | U+2513          | BOX DRAWINGS HEAVY DOWN AND LEFT          |
+| =┗=       | U+2517          | BOX DRAWINGS HEAVY UP AND RIGHT           |
+| =┛=       | U+251B          | BOX DRAWINGS HEAVY UP AND LEFT            |
+| =┣=       | U+2523          | BOX DRAWINGS HEAVY VERTICAL AND RIGHT     |
+| =┫=       | U+252B          | BOX DRAWINGS HEAVY VERTICAL AND LEFT      |
+| =┳=       | U+2533          | BOX DRAWINGS HEAVY DOWN AND HORIZONTAL    |
+| =┻=       | U+253B          | BOX DRAWINGS HEAVY UP AND HORIZONTAL      |
+| =╋=       | U+254B          | BOX DRAWINGS HEAVY VERTICAL AND HORIZNTAL |
+
 Finally, there are special characters used in Paths that have a
 specific meaning:
 
-| Characters | UTF-8 Codepoints | Meaning                                 |
-|------------+------------------+-----------------------------------------|
+| Characters         | UTF-8 Codepoints | Meaning                                 |
+|--------------------+------------------+-----------------------------------------|
 | =╼=, =╽=, =╾=, =╿= | U+257C to U+257F | Start the Path with a function argument |
-| =╳=          | U+2573           | End the program with an error           |
+| =╳=                | U+2573           | End the program with an error           |
 | =→=, =←=, =↑=, =↓= | U+2190 to U+2193 | Returns with the content of the path    |
 
 Let's put this in action. Here is an example of Bauge Paths, using
@@ -381,6 +397,7 @@ if condition {
 }
 // Conditional scope ended, scope is the same as before: U0
 #+End_src
+
 * Controlling data on a Path
 There are multiple ways to control and modify the values stored in
 Path. One of them is using [[./functions.org][function calls]], which is discussed in its

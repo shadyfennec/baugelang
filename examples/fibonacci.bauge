@@ -1,22 +1,3 @@
-#+Title: Bauge, a 2D esoteric programming language
-
-* What is Bauge
-Bauge is a terrible idea of a programming language, where programs
-follow a graphical /path/, written using box-drawing characters such as
-=┌=, =│=, and so on.
-
-The name Bauge comes from the Bauges mountain range, a very nice place
-where my parents live in the northern French alps.
-
-I was inspired by the [[http://scrambledeggsontoast.github.io/2014/09/28/needle-announce/][Haskell "Needle" package]], which "ASCII-fies" the
-arrow notation of that language. I wanted to take that concept up a
-notch, and create a programming language based only on such concepts.
-
-At the time I'm writing this, the idea of the language is still very
-rough, and I'm still modifying things and changing stuff around a
-lot. For example, here's a piece of Bauge code from my [[./ideas.org][ideas file]]:
-
-#+Begin_src bauge
 ┏━ fibonacci: (Int) -> Int ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃                                                                                             ┃
 ┃   This function calculates the Fibonacci number for any                                     ┃
@@ -37,37 +18,11 @@ lot. For example, here's a piece of Bauge code from my [[./ideas.org][ideas file
 ┃                         └─ - _ 2 ─── fibonacci ───┘                                         ┃
 ┃                                                                                             ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-#+End_src
 
-* Planned features for Bauge
-- Interpreted language akin to Python
-- Interpreter written in Rust (because that's the language I'm most
-  familiar with)
-- Easy parallelism using the branching system
-- Functional style of programming, taking full advantage of Iterators
-  and Map/Reduce operations
-
-* Roadmap
-** STARTED Language specification 
-For the moment, the entirety of the language specification is written
-in the ideas file. I need to create a comprehensive documentation
-system.
-
-** TODO Interpreter
-The only certainty I have is that I'm going to write the interpreter
-in Rust. It will need to:
-- Parse the code and somehow derive elements from it (paths, boxes,
-  functions, ...)
-- Perform lexical analysis, syntax analysis and semantic analysis
-- Find how the interpreter is going to interpret: using a VM, with an
-  intermediate representation seems the most likely.
-
-** IDEA Debugger
-Having a debugger interface with a step-by-step, path variable
-visualization, ... would be nice.
-
-** IDEA Visual editor
-This won't come until much, much later in the development, but having
-a visual editor would be easier than writing the code by hand (even
-though I have neat macros for the box drawing characters at the
-moment)
+┏━ main: () -> () ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                                             ┃
+┃                          ┏━ Int -> () ━━━━━━━━━━━━━━━━━━━┓                                  ┃
+┃  ╾──── 0..10 ─── foreach ┃ ╾─ fibonacci ── println ──→   ┃ ─────────────────────────────→   ┃
+┃                          ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛                                  ┃
+┃                                                                                             ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
